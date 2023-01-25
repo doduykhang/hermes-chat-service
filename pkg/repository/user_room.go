@@ -8,6 +8,8 @@ import (
 
 type User interface {
 	CheckUserInRoom(userID string, roomID string) (bool, error)
+	AddUserToRoom(userID string, roomID string) (bool, error)
+	RemoveUserFromRoom(userID string, roomID string) (bool, error)
 }
 
 type user struct {
@@ -34,4 +36,21 @@ func (u *user) CheckUserInRoom(userID string, roomID string) (bool, error) {
 		return true, nil
 	}
 	return true, nil
+}
+
+func (u *user) AddUserToRoom(userID string, roomID string) (bool, error) {	
+	result := u.db.Exec("INSERT INTO users_rooms (user_id, room_id) values (?, ?)", userID, roomID)
+	if result.Error != nil {
+		return false, result.Error
+	}
+	return true, nil
+}
+
+func (u *user) RemoveUserFromRoom(userID string, roomID string) (bool, error) {	
+	result := u.db.Exec("DELETE FROM users_rooms WHERE user_id = ? AND room_id = ?", userID, roomID)
+	if result.Error != nil {
+		return false, result.Error
+	}
+	return true, nil
+
 }

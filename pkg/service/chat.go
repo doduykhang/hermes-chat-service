@@ -22,13 +22,15 @@ type chat struct {
 	melody *melody.Melody
 	pubSub PubSub
 	userRepo repository.User
+	queue Queue
 }
 
-func NewChat(m *melody.Melody, p PubSub, userRepo repository.User) Chat {
+func NewChat(m *melody.Melody, p PubSub, userRepo repository.User, q Queue) Chat {
 	return &chat{
 		melody: m,	
 		pubSub: p,
 		userRepo: userRepo,
+		queue: q,
 	}
 }	
 
@@ -67,6 +69,7 @@ func (chat *chat) HandleMessage() error {
 
 		message.RoomID = roomIDKey.(string)
 		chat.pubSub.Pub(&message)	
+		chat.queue.PubAddMessage(message)
 	})
 	return nil
 }

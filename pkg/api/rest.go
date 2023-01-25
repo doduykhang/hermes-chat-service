@@ -25,28 +25,36 @@ func NewRest() {
 	melody := melody.New()
 	redis := config.NewRedisClient()
 
-	_, err := config.NewGormConnection()
-	if err != nil {
-		log.Panicf("Error connecting to database, %v\n", err)
-	}
-
 	gorm, err := config.NewGormConnection()
 	if err != nil {
 		log.Panicf("Error connecting to database, %v\n", err)
 	}
+	rabbitMQ, err := config.NewRabbitMQConnection()
+	if err != nil {
+		log.Panicf("Error connecting to rabbit mq, %v\n", err)
+	}
+	defer rabbitMQ.Close()
 
 	//repository
 	userRepository := repository.NewUserRepository(gorm)
 
 	//services
 	pubSubService := service.NewPubSubService(redis)
-	chatService := service.NewChat(melody, pubSubService, userRepository)
+	queueService := service.NewQueue(rabbitMQ)
+
+	chatService := service.NewChat(melody, pubSubService, userRepository, queueService)
+	userService := service.NewUserService(userRepository)
 
 	//handlers
 	chatHandler := handler.NewChat(chatService)
+	userHandler := handler.NewUser(userService, queueService)
 
 	//routes
 	mux.Route("/chat", route.NewChat(chatHandler).Register)
+
+	//other
+	go userHandler.HandleAddUser()
+	go userHandler.HandleRemoveUser()
 
 	log.Printf("Chat service listening at port %s\n", port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), mux))
