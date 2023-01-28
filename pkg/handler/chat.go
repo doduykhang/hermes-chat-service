@@ -2,6 +2,7 @@ package handler
 
 import (
 	"doduykhang/hermes-chat/pkg/service"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -23,7 +24,7 @@ func (c *Chat) HandleChat(w http.ResponseWriter, r *http.Request) {
 	userID := ctx.Value("userID").(string)
 	err := c.service.ConnectToRoom(w, r, roomID, userID)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		log.Printf("Error at handler.chat.HandleChat, %s\n", err)
 		w.Write([]byte(err.Error()))
 		return
 	}

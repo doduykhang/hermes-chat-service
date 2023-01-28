@@ -15,11 +15,12 @@ import (
 	"github.com/olahol/melody"
 )
 
-var port = "8080"
+var port = "8082"
 
 func NewRest() {
 	mux := chi.NewMux()
 	mux.Use(middleware.Heartbeat("/ping"))
+	mux.Use(middleware.Logger)
 
 	//config
 	melody := melody.New()
@@ -50,7 +51,7 @@ func NewRest() {
 	userHandler := handler.NewUser(userService, queueService)
 
 	//routes
-	mux.Route("/chat", route.NewChat(chatHandler).Register)
+	mux.Route("/api/chat", route.NewChat(chatHandler).Register)
 
 	//other
 	go userHandler.HandleAddUser()

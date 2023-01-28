@@ -23,19 +23,18 @@ func NewUserRepository(db *gorm.DB) User {
 }
 
 func (u *user) CheckUserInRoom(userID string, roomID string) (bool, error) {	
-	var user struct {
+	var users []struct {
 		UserID string
 		RoomID string
 	}
-	result := u.db.Raw("SELECT * FROM users_rooms WHERE user_id = ? AND room_id = ?", userID, roomID).Scan(&user)
+	
+	result := u.db.Raw("SELECT * FROM users_rooms WHERE user_id = ? AND room_id = ?", userID, roomID).Scan(&users)
 	if result.Error != nil {
-		if result.Error != gorm.ErrRecordNotFound {
-			log.Printf("Error at repository.CheckUserInRoom: %s\n", result.Error)
-			return false, result.Error
-		}
-		return true, nil
+		log.Printf("Error at repository.CheckUserInRoom: %s\n", result.Error)
+		return false, result.Error
 	}
-	return true, nil
+
+	return len(users) != 0, nil
 }
 
 func (u *user) AddUserToRoom(userID string, roomID string) (bool, error) {	

@@ -35,6 +35,7 @@ func NewChat(m *melody.Melody, p PubSub, userRepo repository.User, q Queue) Chat
 }	
 
 func (chat *chat) ConnectToRoom(w http.ResponseWriter, r *http.Request, roomID string, userID string) (error) {
+	
 	check, err := chat.userRepo.CheckUserInRoom(userID, roomID)
 	if err != nil {
 		log.Printf("Error at service.chat.ConnectToRoom: %v\n", err)
@@ -48,7 +49,8 @@ func (chat *chat) ConnectToRoom(w http.ResponseWriter, r *http.Request, roomID s
 
 	keys := make(map[string]interface{})
 	keys["roomID"] = roomID
-	
+	keys["userID"] = userID
+
 	return chat.melody.HandleRequestWithKeys(w, r, keys)
 }
 
@@ -62,12 +64,14 @@ func (chat *chat) HandleMessage() error {
 		}
 
 		roomIDKey, ok := s.Keys["roomID"]
+		userIDkey, ok := s.Keys["userID"]
 		if !ok {
 			log.Printf("Error getting room id\n")
 			return
 		}
 
 		message.RoomID = roomIDKey.(string)
+		message.UserID = userIDkey.(string)	
 		chat.pubSub.Pub(&message)	
 		chat.queue.PubAddMessage(message)
 	})

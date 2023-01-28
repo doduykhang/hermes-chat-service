@@ -105,7 +105,7 @@ func (queue queue) PubAddMessage(message dto.Message) {
 	}
 
 	q, err := ch.QueueDeclare(
-  		"hello", // name
+  		"create-message", // name
   		false,   // durable
   		false,   // delete when unused
   		false,   // exclusive
