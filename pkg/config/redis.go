@@ -4,11 +4,11 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func NewRedisClient() *redis.Client {
-	env := LoadEnv(".")
+func NewRedisClient(config *Config) *redis.Client {
 	return redis.NewClient(&redis.Options{
-		Addr: env.RedisHost + ":" + env.RedisPort,
-		Password: env.RedisPassword,
+		Addr: config.Redis.Host + ":" + config.Redis.Port,
+		Password: config.Redis.Password,
 		DB: 0,
 	})
 }
+

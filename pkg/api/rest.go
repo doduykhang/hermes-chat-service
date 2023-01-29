@@ -23,14 +23,15 @@ func NewRest() {
 	mux.Use(middleware.Logger)
 
 	//config
+	conf := config.LoadEnv(".")
 	melody := melody.New()
-	redis := config.NewRedisClient()
+	redis := config.NewRedisClient(conf)
 
-	gorm, err := config.NewGormConnection()
+	gorm, err := config.NewGormConnection(conf)
 	if err != nil {
 		log.Panicf("Error connecting to database, %v\n", err)
 	}
-	rabbitMQ, err := config.NewRabbitMQConnection()
+	rabbitMQ, err := config.NewRabbitMQConnection(conf)
 	if err != nil {
 		log.Panicf("Error connecting to rabbit mq, %v\n", err)
 	}
