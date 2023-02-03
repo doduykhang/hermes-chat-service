@@ -7,15 +7,19 @@ import (
 )
 
 func NewRabbitMQConnection(config *Config) (*amqp.Connection, error) {
-	return amqp.Dial(getRabbitMQConnString(config.RabbitMQ))
+	conn := getRabbitMQConnString(config.RabbitMQ)
+	fmt.Println(conn)
+	return amqp.Dial(conn)
 }
 
 func getRabbitMQConnString(rabbitMQ RabbitMQ) string {
 	return fmt.Sprintf(
-		"amqp://%s:%s@%s:%s/",
+		"%s://%s:%s@%s:%s/%s",
+		rabbitMQ.Protocol,
 		rabbitMQ.User,
 		rabbitMQ.Password,
 		rabbitMQ.Host,
 		rabbitMQ.Port,
+		rabbitMQ.VHost,
 	)
 }

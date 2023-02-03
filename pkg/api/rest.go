@@ -15,7 +15,6 @@ import (
 	"github.com/olahol/melody"
 )
 
-var port = "8082"
 
 func NewRest() {
 	mux := chi.NewMux()
@@ -36,6 +35,9 @@ func NewRest() {
 		log.Panicf("Error connecting to rabbit mq, %v\n", err)
 	}
 	defer rabbitMQ.Close()
+	
+	//migrate 
+	config.Migrate(conf)
 
 	//repository
 	userRepository := repository.NewUserRepository(gorm)
@@ -58,7 +60,7 @@ func NewRest() {
 	go userHandler.HandleAddUser()
 	go userHandler.HandleRemoveUser()
 
-	log.Printf("Chat service listening at port %s\n", port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), mux))
+	log.Printf("Chat service listening at port %s\n", conf.Server.Port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", conf.Server.Port), mux))
 	
 }

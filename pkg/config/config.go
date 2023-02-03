@@ -2,9 +2,14 @@ package config
 
 import (
 	"log"
+	"strings"
 
 	"github.com/spf13/viper"
 )
+
+type Server struct {
+	Port string `mapstructure:"PORT"`
+}
 
 type Redis struct {
 	Host string `mapstructure:"HOST"`
@@ -21,19 +26,24 @@ type DB struct {
 }
 
 type RabbitMQ struct {
+	Protocol string `mapstructure:"PROTOCOL"` 
 	Host string `mapstructure:"HOST"`
 	Port string `mapstructure:"PORT"`
 	User string `mapstructure:"USER"`
 	Password string `mapstructure:"PASSWORD"` 
+	VHost string `mapstructure:"VHOST"` 
 }
 
 type Config struct {
+	Server Server `mapstructue:"SERVER"`
 	Redis Redis `mapstructure:"REDIS"`
 	DB DB `mapstructure:"DB"`
-	RabbitMQ RabbitMQ `mapstructure:"RABBIT_MQ"`
+	RabbitMQ RabbitMQ `mapstructure:"RABBITMQ"`
 }
 
 func LoadEnv(path string) (*Config) {
+	replacer := strings.NewReplacer(".", "_")
+    	viper.SetEnvKeyReplacer(replacer)
 	viper.AddConfigPath(path)
 	viper.SetConfigName("config")
 	viper.SetConfigType("json")

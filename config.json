@@ -1,14 +1,19 @@
 {
+	"SERVER": {
+		"PORT": "8080"
+	},
 	"REDIS": {
 		"HOST": "localhost",
 		"PORT": "6379",
 		"PASSWORD": ""
 	},
-	"RABBIT_MQ": {
+	"RABBITMQ": {
+		"PROTOCOL": "amqp",
 		"HOST": "localhost",
 		"PORT": "5672",
 		"USER": "guest",
-		"PASSWORD": "guest"
+		"PASSWORD": "guest",
+		"VHOST": ""
 	},
 	"DB": {
 		"HOST": "localhost",

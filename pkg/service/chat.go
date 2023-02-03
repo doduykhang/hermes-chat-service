@@ -5,9 +5,12 @@ import (
 	"doduykhang/hermes-chat/pkg/repository"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/olahol/melody"
 )
 
@@ -58,6 +61,9 @@ func (chat *chat) HandleMessage() error {
 	chat.melody.HandleMessage(func(s *melody.Session, data []byte) {
 		var message dto.Message
 		err := json.Unmarshal(data, &message)
+		message.CreatedAt = time.Now()
+		message.ID = uuid.New().String()
+
 		if err != nil {
 			log.Printf("Error unmarshal message, %s\n", err)
 			return
@@ -84,13 +90,13 @@ func (chat *chat) HandleWaitForMessage() error {
 	go chat.pubSub.Sub(ch)	
 
 	for msg := range ch {
+		fmt.Println("message sub", msg)
 		chat.BroadcastToRoom(msg.RoomID, &msg)
 	}
 	return nil
 }
 
 func (chat *chat) BroadcastToRoom(roomID string, message *dto.Message) (error) {
-
 	b, err := json.Marshal(message)
 	if err != nil {
 		log.Printf("Error marshaling message %s\n", err)
